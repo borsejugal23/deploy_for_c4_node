@@ -6,9 +6,9 @@ require("dotenv").config()
 const { userModel } = require("../model/user.model");
 
 
-userRouter.post("/register",async(req,res)=>{
+userRouter.post("/signup",async(req,res)=>{
    try {
-    const {name,email,password,gender}=req.body;
+    const {email,password,confirm_password}=req.body;
     const existinguser= await userModel.find({email});
 
     if (existinguser.length){
@@ -21,18 +21,16 @@ userRouter.post("/register",async(req,res)=>{
             return res.status(400).json({msg:err.message})
         }
         else{
-            const newuser= new userModel({name,email,password:hash,gender});
+            const newuser= new userModel({email,password:hash,confirm_password});
             await newuser.save();
-            return res.status(200).json({msg:"user has registered successfully"})
+            return res.status(200).json({msg:"user registered successfully"})
         }
     })
-
-
-
    } catch (error) {
     res.status(500).json({error:error.message})
    }
 })
+
 
 
 userRouter.post("/login",async(req,res)=>{
@@ -47,29 +45,15 @@ userRouter.post("/login",async(req,res)=>{
             if (result){
                 const token=jwt.sign({userID:existinguser._id,username:existinguser.name},process.env.secretKey);
                 return res.status(200).json({msg:"login successfully",token:token})
-
             }
             else{
                 return res.status(400).json({error:err.message})
             }
         })
-    
-    } catch (error) {
+    } 
+    catch (error) {
      res.status(500).json({error:error.message})
     }
 })
-userRouter.get("/logout",async(req,res)=>{
-    try {
-        const token = req.headers.authorization?.split(" ")[1] || null;
-    
-        if (token) {
-          await blackModel.updateMany({}, { $push: { blacklist: token } });
-          res.status(200).send({ msg: "Logout successful" });
-        } else {
-          res.status(400).send({ msg: "No token provided" });
-        }
-      } catch (error) {
-        res.status(500).send({ error: error.message });
-      }
-})
+
 module.exports={userRouter}
