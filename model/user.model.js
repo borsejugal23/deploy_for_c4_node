@@ -16,7 +16,3 @@ const userModel=mongoose.model("user",userSchema);
 module.exports={userModel}
 
 
-// name ==> String
-// email ==> String
-// gender ==> String
-// password ==> String
